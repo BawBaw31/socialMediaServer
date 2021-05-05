@@ -1,9 +1,11 @@
 const router = require('express').Router();
 const User = require('../models/User');
-const verify = require('./verifyToken');
+const verify = require('../middlewares/verifySession');
 
-router.get('/', verify, (req,res) => {
-    res.send(req.user);
+router.get('/', verify, (req,res,next) => {
+    console.log('log');
+    res.rawResponse = res.locals.user;
+    next();
 });
 
 module.exports = router;
