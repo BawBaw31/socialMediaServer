@@ -8,6 +8,10 @@ const cors = require('cors');
 // Middlewares imports
 const serialization = require('./middlewares/serialization');
 
+// Import routes
+const authRoute = require('./routes/auth');
+const postRoute = require('./routes/posts');
+
 const app = express();
 
 // Setting IN_PROD 
@@ -16,10 +20,6 @@ if(process.env.NODE_ENV !== 'production') {
     dotenv.config();
     IN_PROD = false;
 }
-
-// Import routes
-const authRoute = require('./routes/auth');
-const postRoute = require('./routes/posts');
 
 // Connect to DB
 mongoose.connect(
@@ -34,7 +34,9 @@ db.once('open', function () {
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({origin: [
+    process.env.URL_FRONT
+  ], credentials: true}));
 app.use(session({
     name: process.env.SESSION_NAME,
     secret: process.env.SESSION_SECRET,

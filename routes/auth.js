@@ -81,12 +81,13 @@ router.post('/login', async (req, res, next) => {
             name: user.name
         }
         res.rawStatus = 200;
-        res.rawResponse = ['Login success !'];
+        res.rawResponse = [user._id];
     }
 
     next();
 });
 
+// Forgot password
 router.post('/forgot-password', async (req,res,next) => {
     // Check if email exists
     const user = await User.findOne({email: req.body.email});
@@ -114,6 +115,7 @@ router.post('/forgot-password', async (req,res,next) => {
     next();
 });
 
+// Reset Password
 router.get('/reset-password/:id/:token', async (req,res,next) => {
     const { id, token } = req.params;
 
