@@ -10,7 +10,7 @@ const serialization = require('./middlewares/serialization');
 
 // Import routes
 const authRoute = require('./routes/auth');
-const postRoute = require('./routes/posts');
+const userRoute = require('./routes/user');
 
 const app = express();
 
@@ -50,7 +50,7 @@ app.use(session({
 }));
 
 // Route Middlewares
-app.use('/api/user', authRoute, serialization);
-app.use('/api/posts',postRoute, serialization);
+app.use('/api/auth', authRoute, serialization);
+app.use('/api/user',userRoute, serialization);
 
 app.listen(3000, () => console.log('Server Up and runnig'));

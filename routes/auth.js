@@ -45,7 +45,7 @@ router.post('/register', async (req, res, next) => {
         try {
             await user.save();
             res.rawStatus = 200;
-            res.rawResponse = ['Registration success !'];
+            res.rawResponse = ['Registration successfull !'];
         }catch(err){
             res.rawStatus = 400;
             res.rawResponse = [err];
@@ -179,6 +179,17 @@ router.post('/reset-password/:id/:token', async (req,res,next) => {
         res.rawResponse = errorArray;
     }
     
+    next();
+});
+
+//  Logout
+router.get('/logout', async (req, res, next) => {
+
+    // Close session
+    req.session.user = {};
+    res.rawStatus = 200;
+    res.rawResponse = ['You loged out !'];
+
     next();
 });
 
