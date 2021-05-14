@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     },
     friends: {
         type: [String],
-        default: [this.name]
+        required: true
     }
 })
 

@@ -1,11 +1,19 @@
 const router = require('express').Router();
 const verify = require('../middlewares/verifySession');
+const { findOneAndDelete } = require('../models/Post');
 const Post = require('../models/Post');
+const User = require('../models/User');
 
-router.get('/:userId/news', verify, (req,res,next) => {
-    if (res.locals.user && res.locals.user._id == req.params.userId){
+// Getting friends news
+router.get('/news', verify, async(req,res,next) => {
+    if (res.locals.user){
+        const user = await User.findOne({_id: res.locals.user._id});
+        const news =  await Post.find(
+            user.friends.forEach(friend => {autorName: friend})
+            ).sort({date: -1});
+        console.log(news);
         res.rawStatus = 200;
-        res.rawResponse = res.locals.user;
+        res.rawResponse = [news, user];
     } else {
         res.rawStatus = 400
         res.rawResponse = (['Access denied !']);
@@ -13,9 +21,10 @@ router.get('/:userId/news', verify, (req,res,next) => {
     next();
 });
 
+// Creating a new post
 router.post('/create', verify, async(req,res,next) => {
     const user = res.locals.user;
-    if (user) {
+    if (user && req.body.text) {
         // Validate
     
         // Create new post
@@ -34,7 +43,7 @@ router.post('/create', verify, async(req,res,next) => {
         }
     } else {
         res.rawStatus = 400;
-        res.rawResponse = ['You are not loged in !'];
+        res.rawResponse = ['Post failed !'];
     }
     next();
 });
