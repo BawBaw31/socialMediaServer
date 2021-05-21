@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const verify = require('../middlewares/verifySession');
-const { findOneAndDelete } = require('../models/Post');
 const Post = require('../models/Post');
 const User = require('../models/User');
 
@@ -34,18 +33,71 @@ router.post('/create', verify, async(req,res,next) => {
         });
     
         try {
-            await post.save();
+            await User.save();
             res.rawStatus = 200;
             res.rawResponse = ['Posted !'];
         }catch(err){
             res.rawStatus = 400;
             res.rawResponse = [err];
         }
+
     } else {
         res.rawStatus = 400;
         res.rawResponse = ['Post failed !'];
     }
     next();
 });
+
+// Adding friend
+router.post('/add-friend', verify, async(req,res,next) => {
+    const user = res.locals.user;
+    if (user && req.body.friend) {
+        // Validate
+
+        // Add the friend
+        try {
+            await User.updateOne(
+                { _id: user._id },
+                { $addToSet: { friends: req.body.friend } }
+            );
+            res.rawStatus = 200;
+            res.rawResponse = ['Friend followed !'];
+        } catch(err) {
+            res.rawStatus = 400;
+            res.rawResponse = [err];
+        }
+
+    } else {
+        res.rawStatus = 400;
+        res.rawResponse = ['Follow request failed !'];
+    }
+    next();
+});
+
+// Deleting friend
+// router.post('/delete-friend', verify, async(req,res,next) => {
+//     const user = res.locals.user;
+//     if (user && req.body.friend) {
+//         // Validate
+
+//         // Add the friend
+//         try {
+//             await User.updateOne(
+//                 { _id: user._id },
+//                 { $addToSet: { friends: req.body.friend } }
+//             );
+//             res.rawStatus = 200;
+//             res.rawResponse = ['Friend followed !'];
+//         } catch(err) {
+//             res.rawStatus = 400;
+//             res.rawResponse = [err];
+//         }
+
+//     } else {
+//         res.rawStatus = 400;
+//         res.rawResponse = ['Follow request failed !'];
+//     }
+//     next();
+// });
 
 module.exports = router;
