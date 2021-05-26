@@ -10,9 +10,22 @@ router.get('/news', verify, async(req,res,next) => {
         const news =  await Post.find(
             user.friends.forEach(friend => {autorName: friend})
             ).sort({date: -1});
-        console.log(news);
         res.rawStatus = 200;
         res.rawResponse = [news, user];
+    } else {
+        res.rawStatus = 400
+        res.rawResponse = (['Access denied !']);
+    }
+    next();
+});
+
+// Getting my profile
+router.get('/profile', verify, async(req,res,next) => {
+    if (res.locals.user){
+        const user = await User.findOne({_id: res.locals.user._id});
+        const posts = await Post.find({autorName: user.name}).sort({date: -1});
+        res.rawStatus = 200;
+        res.rawResponse = [posts, user];
     } else {
         res.rawStatus = 400
         res.rawResponse = (['Access denied !']);
@@ -24,6 +37,7 @@ router.get('/news', verify, async(req,res,next) => {
 router.post('/create', verify, async(req,res,next) => {
     const user = res.locals.user;
     if (user && req.body.text) {
+        console.log(user);
         // Validate
     
         // Create new post
@@ -33,7 +47,7 @@ router.post('/create', verify, async(req,res,next) => {
         });
     
         try {
-            await User.save();
+            await post.save();
             res.rawStatus = 200;
             res.rawResponse = ['Posted !'];
         }catch(err){
@@ -61,7 +75,7 @@ router.post('/add-friend', verify, async(req,res,next) => {
                 { $addToSet: { friends: req.body.friend } }
             );
             res.rawStatus = 200;
-            res.rawResponse = ['Friend followed !'];
+            res.rawResponse = [`You just followed ${req.body.friend} !`];
         } catch(err) {
             res.rawStatus = 400;
             res.rawResponse = [err];
@@ -75,29 +89,29 @@ router.post('/add-friend', verify, async(req,res,next) => {
 });
 
 // Deleting friend
-// router.post('/delete-friend', verify, async(req,res,next) => {
-//     const user = res.locals.user;
-//     if (user && req.body.friend) {
-//         // Validate
+router.post('/delete-friend', verify, async(req,res,next) => {
+    const user = res.locals.user;
+    if (user && req.body.friend) {
+        // Validate
 
-//         // Add the friend
-//         try {
-//             await User.updateOne(
-//                 { _id: user._id },
-//                 { $addToSet: { friends: req.body.friend } }
-//             );
-//             res.rawStatus = 200;
-//             res.rawResponse = ['Friend followed !'];
-//         } catch(err) {
-//             res.rawStatus = 400;
-//             res.rawResponse = [err];
-//         }
+        // Delete the friend
+        try {
+            await User.updateOne(
+                { _id: user._id },
+                { $pull: { friends: req.body.friend } }
+            );
+            res.rawStatus = 200;
+            res.rawResponse = [`You don't follow ${req.body.friend} anymore !`];
+        } catch(err) {
+            res.rawStatus = 400;
+            res.rawResponse = [err];
+        }
 
-//     } else {
-//         res.rawStatus = 400;
-//         res.rawResponse = ['Follow request failed !'];
-//     }
-//     next();
-// });
+    } else {
+        res.rawStatus = 400;
+        res.rawResponse = ['Unfollow request failed !'];
+    }
+    next();
+});
 
 module.exports = router;
