@@ -114,4 +114,20 @@ router.post('/delete-friend', verify, async(req,res,next) => {
     next();
 });
 
+// Get all users
+router.get('/all-names', verify, async(req,res,next) => {
+    if (res.locals.user){
+        const users = await User.find({_id: { $exists: true }});
+        const usersName = [];
+        users.forEach(user => usersName.push(user.name));
+        res.rawStatus = 200;
+        res.rawResponse = [usersName];
+    } else {
+        res.rawStatus = 400
+        res.rawResponse = (['Access denied !']);
+    }
+    next();
+});
+
+
 module.exports = router;
