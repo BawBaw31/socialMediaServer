@@ -19,4 +19,22 @@ router.get('/:userName', verify, async(req,res,next) => {
     next();
 });
 
+// is friend
+router.post('/is-friend', verify, async(req, res, next) => {
+    if (res.locals.user) {
+        const user = await User.findOne({_id: res.locals.user._id});
+        if (user.friends.includes(req.body.friendName)) {
+            res.rawStatus = 200;
+            res.rawResponse = [true];
+        } else {
+            res.rawStatus = 200;
+            res.rawResponse = [false];
+        }
+    } else {
+        res.rawStatus = 400
+        res.rawResponse = (['Access denied !']);
+    }
+    next();
+})
+
 module.exports = router;
